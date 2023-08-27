@@ -32,7 +32,6 @@ public class StepDefinationGetProperty {
         fileInputStream();
         return prop.getProperty("VALIDATION_3");
     }
-
     public String validation4() throws IOException {
         fileInputStream();
         return prop.getProperty("VALIDATION_4");
@@ -56,5 +55,10 @@ public class StepDefinationGetProperty {
     public String validation8() throws IOException {
         fileInputStream();
         return prop.getProperty("VALIDATION_8");
+    }
+
+    public String validation9() throws IOException {
+        fileInputStream();
+        return prop.getProperty("VALIDATION_9");
     }
 }

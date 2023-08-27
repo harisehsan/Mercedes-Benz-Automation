@@ -1,14 +1,19 @@
 package stepdefinitions;
 
+import base.Base;
 import base.BaseUtil;
 import base.ScreenRecorderUtil;
 import cucumber.api.Scenario;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
+import getProperties.BaseGetProperties;
 import getProperties.HooksGetProperty;
 import getProperties.ScriptGetProperty;
 import io.qameta.allure.Allure;
 import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
@@ -25,13 +30,14 @@ import java.io.IOException;
 public class Hooks extends BaseUtil {
 
     private String scenarioName;
-    private BaseUtil base;
+    private BaseUtil baseUtil;
     HooksGetProperty hooksGetProperty = new HooksGetProperty();
     ScriptGetProperty scriptGetProperty = new ScriptGetProperty();
+    BaseGetProperties baseGetProperties = new BaseGetProperties();
 
 
-    public Hooks(BaseUtil base) {
-        this.base = base;
+    public Hooks(BaseUtil baseUtil) {
+        this.baseUtil = baseUtil;
     }
 
     /** This method executes the webDriver to open the required browser for testing and also start the video recording of browser **/
@@ -48,7 +54,6 @@ public class Hooks extends BaseUtil {
         }
         scenarioName = scenario.getName();
         ScreenRecorderUtil.startRecord(scenarioName); /** Start the video recoding **/
-
     }
 
     /** This method will quit the driver, stop the video recording of the test attach the following file to the allure report
@@ -58,13 +63,19 @@ public class Hooks extends BaseUtil {
 
     @After
     public void TearDownTest(Scenario scenario) throws Exception {
-        driver.quit();
         try {
+            if(scenario.isFailed())
+            {
+                TakesScreenshot scrShot =((TakesScreenshot)driver);
+                File SrcFile=scrShot.getScreenshotAs(OutputType.FILE);
+                File DestFile=new File(baseGetProperties.screenshotPath());
+                FileUtils.copyFile(SrcFile, DestFile);
+            }
             ScreenRecorderUtil.stopRecord();
             driver.quit();
-            Allure.addAttachment(hooksGetProperty.boundryPrice(),FileUtils.openInputStream(new File(scriptGetProperty.textFilePath())));
             Allure.addAttachment(hooksGetProperty.screenshot(),FileUtils.openInputStream(new File(scriptGetProperty.screenShotPath())));
             Allure.addAttachment(hooksGetProperty.scenarioVideo(),FileUtils.openInputStream(new File(hooksGetProperty.videoPath())));
+            Allure.addAttachment(hooksGetProperty.boundryPrice(),FileUtils.openInputStream(new File(scriptGetProperty.textFilePath())));
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }

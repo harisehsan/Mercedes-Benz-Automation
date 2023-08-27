@@ -37,10 +37,9 @@ public class MercedesTestScript extends Base {
         goToPage(scriptGetProperty.mainURL());
         waitUntilPageReady(Duration.ofMinutes(convertToInteger(scriptGetProperty.valueOne())));
         /** Accept the all cookie when cookie popup appears **/
-        List<WebElement> acceptAll_btn = getShadowRoot(mercedesTaskPageObject.main_shadow_root).findElements(mercedesTaskPageObject.accept_All_btn_by);
-        if (elementExist(acceptAll_btn))
-            for (WebElement webElement : acceptAll_btn)
-                     javaScriptButtonClick(webElement);
+        WebElement acceptAll_btn = getShadowRoot(mercedesTaskPageObject.main_shadow_root).findElement(mercedesTaskPageObject.accept_All_btn_by);
+        waitUntilVisible(acceptAll_btn, Duration.ofSeconds(convertToInteger(scriptGetProperty.maxTries())));
+        javaScriptButtonClick(acceptAll_btn);
     }
 
     /** This method is used to scroll the page our model section on the page **/
@@ -93,8 +92,9 @@ public class MercedesTestScript extends Base {
       return build_your_car_flag;
    }
 
-    /** This method is used to select the Diesel fuel type to get the item for diesal only **/
-   public void filterByDieselFuelType(String diesel) throws InterruptedException, IOException {
+    /** This method is used to select the Diesel fuel type to get the item for diesal only
+     * @return**/
+   public boolean filterByDieselFuelType(String diesel) throws InterruptedException, IOException {
        waitUntilPageReady(Duration.ofMinutes(convertToInteger(scriptGetProperty.valueOne())));
        waitUntilVisible(mercedesTaskPageObject.car_config_root,Duration.ofSeconds(convertToInteger(scriptGetProperty.valueFive())));
        SearchContext shadowRoot = mercedesTaskPageObject.car_config_root.getShadowRoot();
@@ -110,10 +110,12 @@ public class MercedesTestScript extends Base {
        SearchContext shadowRoot4 = shadowRoot3.findElement(mercedesTaskPageObject.diesal_type_shadow_by_2).getShadowRoot();
        WebElement dieselChkBox  =  shadowRoot4.findElement(mercedesTaskPageObject.diesal_chkBox);
        /** Select the diesel fuel Type in the Dropdown **/
-       if (dieselChkBox.getAttribute(scriptGetProperty.nameAttribute()).equalsIgnoreCase(diesel) && !dieselChkBox.isSelected()) {
+       if (dieselChkBox.getAttribute(scriptGetProperty.nameAttribute()).equalsIgnoreCase(diesel) && !dieselChkBox.isSelected())
            javaScriptButtonClick(dieselChkBox);
-       }
+       else
+           return false;
        javaScriptButtonClick(fuelType);
+       return true;
    }
 
     /** This method is to verify that After the selction of the diesel fuel Type atleast one item should exist **/
